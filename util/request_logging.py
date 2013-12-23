@@ -71,7 +71,7 @@ class RequestArray:
         for r in self.req_array:
             req_str += str(r)
         return 'File: %s, Requests: %s' % (
-            self.user_file, req_str)
+            self.req_file, req_str)
 
     # function as with-context
     def __enter__(self):
