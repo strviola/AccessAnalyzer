@@ -39,7 +39,9 @@ class RequestArray:
     
     Members:
         req_array:
-            The requested parameter as dictionary.
+            The list of requests as SimpleRequest instance.
+        req_file:
+            The full file path to saving file.
     '''
 
     def __init__(self, filename):
@@ -48,8 +50,8 @@ class RequestArray:
         # open outer file
         self.req_array = None
         try:
-            with open(self.req_file, 'rb') as req_read:
-                self.req_array = pickle.load(req_read)
+            with open(self.req_file, 'rb') as fr:
+                self.req_array = pickle.load(fr)
 
         except (IOError, EOFError):
             logging.warning('File not found or broken. Make new pickle file.')
@@ -58,8 +60,9 @@ class RequestArray:
                 os.mkdir(SAVE_DIR)
 
     def close(self):
-        with open(self.req_file, 'ab') as req_write:
-            pickle.dump(self.req_array, req_write)
+        with open(self.req_file, 'wb') as fw:
+            pickle.dump(self.req_array, fw)
+            print('close complete')
     
     # functions as user_array
     def append(self, request):
@@ -85,6 +88,12 @@ class RequestArray:
     # function as array
     def __getitem__(self, index):
         return self.req_array[index]
+
+    def __delitem__(self, index):
+        del self.req_array[index]
+
+    def __len__(self):
+        return len(self.req_array)
 
 
 def save_to_outer(request, filename):

@@ -5,24 +5,23 @@ Created on 2013/12/18
 '''
 
 
-from datetime import datetime
 from dateutil import parser
-import pytz
 
 
 def get_time_from_login(request):
     '''
     Get user data from request (SimpleRequest class) and returns time from
-    the user joined this app to now.
+    the user joined this app to posted.
     '''
 
     # get current time
-    now = datetime.now(pytz.timezone('Asia/Tokyo'))
+    posted_str = request.user['last_login']
+    posted = parser.parse(posted_str)
     # get user login date
     joined_str = request.user['date_joined']
     joined = parser.parse(joined_str)
     # calculate time delta
-    return now - joined
+    return posted - joined
 
 
 def make_point(request, *keys):
@@ -31,6 +30,7 @@ def make_point(request, *keys):
     This list always contains time from request-user-join to now.
     '''
 
+    print(request.user['gmail'])
     # first axis: user-join time to current time
     time_delta = get_time_from_login(request)
     delta_int = time_delta.total_seconds()
