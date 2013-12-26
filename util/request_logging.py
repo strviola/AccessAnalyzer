@@ -69,6 +69,9 @@ class RequestArray:
         req_simple = SimpleRequest(request)
         self.req_array.append(req_simple)
 
+    def extend(self, array):
+        self.req_array.extend(array)
+
     def __str__(self):
         req_str = ''
         for r in self.req_array:

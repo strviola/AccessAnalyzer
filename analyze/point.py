@@ -30,7 +30,6 @@ def make_point(request, *keys):
     This list always contains time from request-user-join to now.
     '''
 
-    print(request.user['gmail'])
     # first axis: user-join time to current time
     time_delta = get_time_from_login(request)
     delta_int = time_delta.total_seconds()
