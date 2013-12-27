@@ -39,3 +39,24 @@ def make_point(request, *keys):
     point.extend(req)
 
     return point
+
+
+def make_unique(array):
+    '''
+    Remove duplicate elements in array.
+    '''
+
+    unique = []
+    for item in array:
+        if item not in unique:
+            unique.append(item)
+    return unique
+
+
+def make_point_array_with_labels(request_array, *keys):
+    # make points array
+    point_array = [make_point(request, *keys) for request in request_array]
+    # make true labels array
+    label_array = [(1 if 'test' in request.REQUEST else 0)
+                   for request in request_array]
+    return point_array, label_array
