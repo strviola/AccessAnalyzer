@@ -6,6 +6,7 @@ Created on 2013/12/18
 
 
 from dateutil import parser
+from math import sqrt
 
 
 def get_time_from_login(request):
@@ -60,3 +61,34 @@ def make_point_array_with_labels(request_array, *keys):
     label_array = [(1 if 'test' in request.REQUEST else 0)
                    for request in request_array]
     return point_array, label_array
+
+
+def normalize(points):
+    '''
+    Transform points to make mean=0 and variance=1 for each dimension.
+    Returns means and standard deviation of each dimension.
+    Note that argument 'points' is list of list: [[0, 0, ..., 0], ...]
+    '''
+
+    n_dim = len(points[0])
+    m = [0] * n_dim
+    v = [0] * n_dim
+    for dimension in range(n_dim):
+        # get each dimension
+        elem = [p[dimension] for p in points]
+        
+        # calculate mean
+        m[dimension] = float(sum(elem)) / len(elem)
+        
+        # calculate variance
+        sq_mean_sub = [(e - m[dimension]) ** 2 for e in elem]
+        v[dimension] = sum(sq_mean_sub) / len(elem)
+
+    points_n = []
+    for p in points:
+        p_n = [0] * n_dim
+        for dim in range(n_dim):
+            p_n[dim] = (p[dim] - m[dim]) / sqrt(v[dim])
+        points_n.append(p_n)
+
+    return points_n, m, [sqrt(vv) for vv in v]
