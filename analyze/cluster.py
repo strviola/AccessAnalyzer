@@ -24,10 +24,10 @@ def dbscan(raw_points, eps, minpts):
         if l == -1:
             n_noise += 1
 
-    return divided, n_clusters, n_noise
+    return divided, n_noise
 
 
-def count_false(points, labels_true, dbscan_result):
+def count_false(points, labels_true, dbscan_result, latex):
     labels_est = dbscan_result.labels_
 
     false_negative = 0
@@ -36,19 +36,18 @@ def count_false(points, labels_true, dbscan_result):
         fp = [p, l_true, l_est]
         if l_true == -1 and l_est != -1:
             false_negative += 1
-            print('N', fp)
+            if not latex:
+                print('N', fp)
         elif l_true != -1 and l_est == -1:
             false_positive += 1
-            print('P', fp)
+            if not latex:
+                print('P', fp)
 
-    print('False positive: %d (rate: %f)' %
-          (false_positive, false_positive * 1.0 / len(points)))
-    print('False negative: %d (rate: %f)' % 
-          (false_negative, false_negative * 1.0 / len(points)))
+    return false_positive, false_negative
 
 
 def step_dbscan(point_list, eps_list, minpts_list,
-                contain_cheat=True, labels_true=None):
+                contain_cheat=True, labels_true=None, latex=False):
 
     # When just one EPS or MINPTS given: convert 1-length list
     if not isinstance(eps_list, list):
@@ -56,11 +55,38 @@ def step_dbscan(point_list, eps_list, minpts_list,
     if not isinstance(minpts_list, list):
         minpts_list = [minpts_list]
 
+    if latex:
+        # LaTeX format
+        print(r'\begin{tabular}{c|'),
+        print('%s}' % ('c' * len(minpts_list)))
+        print(r'$\Eps \backslash \MinPts$'),
+        for minpts in minpts_list:
+            print(' & %d' % minpts),
+        print(r'\\')
+
+
     for eps in eps_list:
+        if latex:
+            print('%.2f' % eps),
         for minpts in minpts_list:
             # DBSCAN: count noise
-            cluster_result, n_clusters, n_noise = dbscan(point_list, eps, minpts)
-            print('Noises at eps=%f, minpts=%d: %d' % (eps, minpts, n_noise))
+            cluster_result, n_noise = dbscan(point_list, eps, minpts)
+            fp, fn = count_false(point_list, labels_true, cluster_result, latex)
+            if latex:
+                # for LaTeX tabular format
+                if contain_cheat:
+                    # output FP and FN
+                    print(' & (%d, %d)' % (fp, fn)),
+                else:
+                    print(' & %d' % n_noise),
+            else:
+                if contain_cheat:
+                    print('False Positive: %d' % fp)
+                    print('False Negative: %d' % fn)
+                else:
+                    print('Noises at eps=%f, minpts=%d: %d' % (eps, minpts, n_noise))
 
-            if contain_cheat:
-                count_false(point_list, labels_true, cluster_result)
+        if latex:
+            print(r'\\')
+    if latex:
+        print(r'\end{tabular}')
