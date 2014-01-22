@@ -92,3 +92,9 @@ def normalize(points):
         points_n.append(p_n)
 
     return points_n, m, [sqrt(vv) for vv in v]
+
+
+def frange(start, stop, step):
+    while start < stop:
+        yield start
+        start += step
