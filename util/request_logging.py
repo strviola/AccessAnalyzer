@@ -11,7 +11,6 @@ import logging
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-SAVE_DIR = os.path.join(BASE_DIR, 'logs')
 
 
 class SimpleRequest:
@@ -44,8 +43,14 @@ class RequestArray:
             The full file path to saving file.
     '''
 
-    def __init__(self, filename):
-        self.req_file = os.path.join(SAVE_DIR, filename)
+    def __init__(self, filename, dirname=None):
+        if dirname is not None:
+            # save_dir can be overwritten
+            save_dir = os.path.join(BASE_DIR, dirname)
+        else:
+            save_dir = os.path.join(BASE_DIR, 'logs')
+
+        self.req_file = os.path.join(save_dir, filename)
         
         # open outer file
         self.req_array = None
@@ -56,8 +61,8 @@ class RequestArray:
         except (IOError, EOFError):
             logging.warning('File not found or broken. Make new pickle file.')
             self.req_array = []
-            if not os.path.exists(SAVE_DIR):
-                os.mkdir(SAVE_DIR)
+            if not os.path.exists(save_dir):
+                os.mkdir(save_dir)
 
     def close(self):
         with open(self.req_file, 'wb') as fw:
@@ -107,3 +112,12 @@ def save_to_outer(request, filename):
 
     with RequestArray(filename) as array:
         array.append(request)
+
+
+def collect_sample_from_dir(dirname):
+    sample_array = []
+    log_dir = os.path.join(BASE_DIR, dirname)
+    log_files = os.listdir(log_dir)[1:]
+    for filename in log_files:
+        sample_array.extend(RequestArray(filename))
+    return sample_array

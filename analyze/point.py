@@ -7,6 +7,7 @@ Created on 2013/12/18
 
 from dateutil import parser
 from math import sqrt
+from numpy import arange
 
 
 def get_time_from_login(request):
@@ -58,7 +59,7 @@ def make_point_array_with_labels(request_array, *keys):
     # make points array
     point_array = [make_point(request, *keys) for request in request_array]
     # make true labels array
-    label_array = [(1 if 'test' in request.REQUEST else 0)
+    label_array = [(-1 if 'test' in request.REQUEST else 0)
                    for request in request_array]
     return point_array, label_array
 
@@ -95,6 +96,4 @@ def normalize(points):
 
 
 def frange(start, stop, step):
-    while start < stop:
-        yield start
-        start += step
+    return list(arange(start, stop, step))
